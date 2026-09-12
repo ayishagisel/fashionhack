@@ -46,18 +46,26 @@ select:focus, input:focus { border-color: #7952ad; box-shadow: 0 0 0 3px rgba(12
 @media (max-width: 560px) { .app-shell { width: 96vw; padding-top: 18px; } #videos { min-height: 390px; } #videos.has-subscriber #publisher-container { width: 42%; } .section-header { align-items: flex-start; gap: 10px; } }
 
 @media print {
-  @page { margin: .55in; }
-  body { background: white; }
-  .app-shell { width: 100%; padding: 0; }
-  .hero { margin-bottom: 20px; }
+  @page { size: letter; margin: .7in .72in .65in; }
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  html, body { background: #fff !important; color: #17151b; }
+  body { font-family: Inter, Arial, sans-serif; }
+  .app-shell { width: 100%; margin: 0; padding: 0; }
+  .hero { display: block; border-bottom: 3px solid #7350a6; padding: 0 0 16px; margin: 0 0 24px; }
+  .hero::after { content: "Personal AI Style Report • Powered by Gemini + Vonage Video API"; display: block; margin-top: 9px; color: #6d6672; font-size: 8.5pt; letter-spacing: .03em; }
+  .hero h1 { font-size: 34pt; line-height: 1; letter-spacing: -.045em; margin: 0; }
   .eyebrow, .lede, .status-pill, .video-card, .stylist-card > label, .stylist-card > select, .stylist-card > input, #analyze-look, .microcopy, .analysis-state, .report-actions, .footer-note { display: none !important; }
-  h1 { font-size: 42pt; }
   .workspace { display: block; }
-  .stylist-card { border: 0; box-shadow: none; padding: 0; display: block; }
+  .stylist-card { border: 0; box-shadow: none; padding: 0; display: block; background: #fff; }
   .stylist-card > div:first-child { margin-bottom: 12px; }
-  .report-context { display: block !important; font-size: 10pt; margin-bottom: 14px; color: #444; }
-  .report-snapshot { display: block; width: 320px; max-height: 240px; object-fit: cover; border-radius: 12px; margin: 0 0 18px; }
-  .analysis-result { display: block !important; background: white; border: 1px solid #ddd; padding: 18px; }
-  .analysis-result h3 { break-after: avoid; }
-  .analysis-result p { font-size: 10.5pt; }
+  .stylist-card .section-kicker { display: block !important; margin: 0 0 4px; color: #7350a6; font-size: 8pt; letter-spacing: .18em; }
+  .stylist-card h2 { font-size: 20pt; line-height: 1.15; margin: 0 0 8px; }
+  .report-context { display: block !important; font-size: 9.5pt; line-height: 1.45; margin: 0 0 16px; padding: 10px 12px; color: #4e4852; background: #f5f1f8; border-left: 4px solid #7350a6; border-radius: 4px; }
+  .report-snapshot { display: block; width: 2.75in; height: 2.05in; object-fit: cover; object-position: center; border: 1px solid #d9d1dd; border-radius: 10px; margin: 0 0 18px; }
+  .analysis-result { display: block !important; background: #fff; border: 1px solid #ddd6e2; border-radius: 12px; padding: 18px 20px; box-shadow: none; }
+  .analysis-result h3 { color: #694892; font-size: 9pt; letter-spacing: .12em; margin: 13px 0 4px; break-after: avoid; page-break-after: avoid; }
+  .analysis-result h3:first-child { margin-top: 0; }
+  .analysis-result p { color: #26222a; font-size: 10pt; line-height: 1.42; margin: 0; orphans: 3; widows: 3; }
+  .analysis-result h3, .analysis-result p { break-inside: avoid; page-break-inside: avoid; }
+  .stylist-card::after { content: "StyleRoom AI • AI-assisted styling guidance • Hackathon MVP"; display: block; border-top: 1px solid #ddd6e2; margin-top: 22px; padding-top: 9px; color: #817987; font-size: 7.5pt; text-align: center; }
 }
