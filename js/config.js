@@ -1,9 +1,9 @@
 /* StyleRoom AI configuration
  * Keep credentials OUT of this public repository.
- * Point SAMPLE_SERVER_BASE_URL at the Vonage Node sample server you already have running.
+ * This points to the Vonage Node sample server already running in Codespaces.
  * The server should expose GET /session returning { applicationId, sessionId, token }.
  */
-const SAMPLE_SERVER_BASE_URL = 'PASTE_YOUR_VONAGE_SERVER_URL_HERE';
+const SAMPLE_SERVER_BASE_URL = 'https://super-space-carnival-xqv79x9w4jhvpg9-3000.app.github.dev';
 
 // Optional direct credentials for disposable/local testing only. Do not commit real values.
 const APPLICATION_ID = null;
