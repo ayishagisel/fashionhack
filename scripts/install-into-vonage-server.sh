@@ -4,7 +4,7 @@ set -euo pipefail
 mkdir -p routes
 curl -fsSL https://raw.githubusercontent.com/ayishagisel/fashionhack/main/server/routes/analyze-fashion.js -o routes/analyze-fashion.js
 
-python - <<'PY'
+python3 - <<'PY'
 from pathlib import Path
 p = Path('app.js')
 s = p.read_text()
