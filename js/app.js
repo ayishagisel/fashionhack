@@ -5,13 +5,19 @@ let sessionId = SESSION_ID;
 let token = TOKEN;
 let activePublisher = null;
 let activeSession = null;
+let remoteStreamCount = 0;
 
 const statusEl = document.querySelector('#connection-status');
 const analyzeBtn = document.querySelector('#analyze-look');
 const analysisState = document.querySelector('#analysis-state');
 const analysisResult = document.querySelector('#analysis-result');
+const reportActions = document.querySelector('#report-actions');
+const reportContext = document.querySelector('#report-context');
+const reportSnapshot = document.querySelector('#report-snapshot');
+const printReportBtn = document.querySelector('#print-report');
 const publishVideoTrueBtn = document.querySelector('#publish-video-true');
 const publishVideoFalseBtn = document.querySelector('#publish-video-false');
+const videosEl = document.querySelector('#videos');
 
 function setStatus(text) { statusEl.textContent = text; }
 
@@ -38,6 +44,7 @@ function renderAnalysis(data) {
     ).join('');
   }
   analysisResult.classList.remove('hidden');
+  reportActions.classList.remove('hidden');
   analysisState.textContent = 'Style analysis complete.';
 }
 
@@ -48,15 +55,30 @@ function broadcastAnalysis(data) {
   });
 }
 
+function updateVideoLayout() {
+  videosEl.classList.toggle('has-subscriber', remoteStreamCount > 0);
+}
+
 async function initializeSession() {
   activeSession = OT.initSession(applicationId, sessionId);
 
   activeSession.on('streamCreated', async (event) => {
     try {
+      remoteStreamCount += 1;
+      updateVideoLayout();
       await activeSession.subscribe.promise(event.stream, 'subscriber', {
         insertMode: 'append', width: '100%', height: '100%'
       });
-    } catch (error) { console.error(error); }
+    } catch (error) {
+      remoteStreamCount = Math.max(0, remoteStreamCount - 1);
+      updateVideoLayout();
+      console.error(error);
+    }
+  });
+
+  activeSession.on('streamDestroyed', () => {
+    remoteStreamCount = Math.max(0, remoteStreamCount - 1);
+    updateVideoLayout();
   });
 
   activeSession.on('signal:style-analysis', (event) => {
@@ -98,6 +120,8 @@ async function analyzeCurrentLook() {
 
   analyzeBtn.disabled = true;
   analysisResult.classList.add('hidden');
+  reportActions.classList.add('hidden');
+  reportContext.classList.add('hidden');
   analysisState.textContent = 'Capturing your live look…';
 
   try {
@@ -106,6 +130,10 @@ async function analyzeCurrentLook() {
     const goal = document.querySelector('#goal').value.trim();
     const constraint = document.querySelector('#constraint').value;
 
+    reportSnapshot.src = imageData.startsWith('data:') ? imageData : `data:image/png;base64,${imageData}`;
+    reportContext.textContent = `${occasion} • ${goal || 'No style goal entered'} • ${constraint}`;
+    reportContext.classList.remove('hidden');
+
     analysisState.textContent = 'Gemini is styling your look…';
     const endpoint = SAMPLE_SERVER_BASE_URL.replace(/\/$/, '') + GEMINI_ANALYZE_PATH;
     const response = await fetch(endpoint, {
@@ -113,20 +141,24 @@ async function analyzeCurrentLook() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ image: imageData, occasion, goal, constraint })
     });
-    if (!response.ok) throw new Error(`Analysis request failed (${response.status})`);
+    if (!response.ok) {
+      const errorBody = await response.json().catch(() => ({}));
+      throw new Error(errorBody.error || `Analysis request failed (${response.status})`);
+    }
 
     const data = await response.json();
     renderAnalysis(data);
     broadcastAnalysis(data);
   } catch (error) {
     console.error(error);
-    analysisState.textContent = 'Analysis is not connected yet. The live room can still be demoed; connect the server-side Gemini endpoint to finish the AI loop.';
+    analysisState.textContent = `Style analysis failed: ${error.message}`;
   } finally {
     analyzeBtn.disabled = false;
   }
 }
 
 analyzeBtn.addEventListener('click', analyzeCurrentLook);
+printReportBtn.addEventListener('click', () => window.print());
 
 if (applicationId && token && sessionId) {
   initializeSession();
