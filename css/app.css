@@ -55,8 +55,10 @@ select:focus, input:focus { border-color: #7952ad; box-shadow: 0 0 0 3px rgba(12
   html, body { width: 8.5in; min-height: 11in; background: #fff !important; color: #17151b; }
   body { margin: 0 !important; padding: 0 !important; font-family: Inter, Arial, sans-serif; }
 
-  /* Hide browser-extension widgets injected directly into the page. */
-  body > iframe, body > div { display: none !important; }
+  /* Print only the StyleRoom document. This also removes extension/custom-widget overlays. */
+  body > *:not(.app-shell) { display: none !important; visibility: hidden !important; }
+  body > .app-shell { display: block !important; visibility: visible !important; }
+  .app-shell iframe, .app-shell [style*="position: fixed"], .app-shell [style*="position:fixed"] { display: none !important; }
 
   .app-shell { width: 100%; min-height: 11in; margin: 0; padding: .46in .54in .42in !important; }
   .hero { display: block; border-bottom: 3px solid #7350a6; padding: 0 0 14px; margin: 0 0 18px; }
