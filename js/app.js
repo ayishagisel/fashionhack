@@ -6,6 +6,8 @@ let token = TOKEN;
 let activePublisher = null;
 let activeSession = null;
 let remoteStreamCount = 0;
+let latestAnalysis = null;
+let latestImageData = null;
 
 const statusEl = document.querySelector('#connection-status');
 const analyzeBtn = document.querySelector('#analyze-look');
@@ -13,7 +15,12 @@ const analysisState = document.querySelector('#analysis-state');
 const analysisResult = document.querySelector('#analysis-result');
 const reportActions = document.querySelector('#report-actions');
 const reportContext = document.querySelector('#report-context');
+const reportVisuals = document.querySelector('#report-visuals');
 const reportSnapshot = document.querySelector('#report-snapshot');
+const visualizationFigure = document.querySelector('#visualization-figure');
+const visualizationImage = document.querySelector('#visualization-image');
+const visualizationState = document.querySelector('#visualization-state');
+const visualizeBtn = document.querySelector('#visualize-look');
 const printReportBtn = document.querySelector('#print-report');
 const publishVideoTrueBtn = document.querySelector('#publish-video-true');
 const publishVideoFalseBtn = document.querySelector('#publish-video-false');
@@ -28,6 +35,7 @@ function escapeHtml(value = '') {
 }
 
 function renderAnalysis(data) {
+  latestAnalysis = data;
   const fields = [
     ['The Look', data.theLook || data.look],
     ['Keep', data.keep],
@@ -122,17 +130,23 @@ async function analyzeCurrentLook() {
   analysisResult.classList.add('hidden');
   reportActions.classList.add('hidden');
   reportContext.classList.add('hidden');
+  reportVisuals.classList.add('hidden');
+  visualizationFigure.classList.add('hidden');
+  visualizationState.classList.add('hidden');
+  latestAnalysis = null;
   analysisState.textContent = 'Capturing your live look…';
 
   try {
     const imageData = activePublisher.getImgData();
+    latestImageData = imageData.startsWith('data:') ? imageData : `data:image/png;base64,${imageData}`;
     const occasion = document.querySelector('#occasion').value;
     const goal = document.querySelector('#goal').value.trim();
     const constraint = document.querySelector('#constraint').value;
 
-    reportSnapshot.src = imageData.startsWith('data:') ? imageData : `data:image/png;base64,${imageData}`;
+    reportSnapshot.src = latestImageData;
     reportContext.textContent = `${occasion} • ${goal || 'No style goal entered'} • ${constraint}`;
     reportContext.classList.remove('hidden');
+    reportVisuals.classList.remove('hidden');
 
     analysisState.textContent = 'Gemini is styling your look…';
     const endpoint = SAMPLE_SERVER_BASE_URL.replace(/\/$/, '') + GEMINI_ANALYZE_PATH;
@@ -157,7 +171,55 @@ async function analyzeCurrentLook() {
   }
 }
 
+async function visualizeSuggestedLook() {
+  if (!latestImageData || !latestAnalysis) {
+    visualizationState.textContent = 'Run a style analysis first.';
+    visualizationState.classList.remove('hidden');
+    return;
+  }
+
+  visualizeBtn.disabled = true;
+  visualizationState.textContent = 'Creating a photorealistic suggested look…';
+  visualizationState.classList.remove('hidden');
+
+  try {
+    const occasion = document.querySelector('#occasion').value;
+    const goal = document.querySelector('#goal').value.trim();
+    const constraint = document.querySelector('#constraint').value;
+    const endpoint = SAMPLE_SERVER_BASE_URL.replace(/\/$/, '') + '/visualize-fashion';
+
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        image: latestImageData,
+        analysis: latestAnalysis,
+        occasion,
+        goal,
+        constraint
+      })
+    });
+
+    if (!response.ok) {
+      const errorBody = await response.json().catch(() => ({}));
+      throw new Error(errorBody.error || `Visualization request failed (${response.status})`);
+    }
+
+    const data = await response.json();
+    visualizationImage.src = data.image;
+    visualizationFigure.classList.remove('hidden');
+    reportVisuals.classList.remove('hidden');
+    visualizationState.textContent = 'Suggested look visualization ready.';
+  } catch (error) {
+    console.error(error);
+    visualizationState.textContent = `Visualization failed: ${error.message}`;
+  } finally {
+    visualizeBtn.disabled = false;
+  }
+}
+
 analyzeBtn.addEventListener('click', analyzeCurrentLook);
+visualizeBtn.addEventListener('click', visualizeSuggestedLook);
 printReportBtn.addEventListener('click', () => window.print());
 
 if (applicationId && token && sessionId) {
