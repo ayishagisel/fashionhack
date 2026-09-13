@@ -29,8 +29,8 @@ const videosEl = document.querySelector('#videos');
 function setStatus(text) { statusEl.textContent = text; }
 
 function escapeHtml(value = '') {
-  return String(value).replace(/[&<>'"]/g, (char) => ({
-    '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#039;', '"': '&quot;'
+  return String(value).replace(/[&<>'\"]/g, (char) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#039;', '\"': '&quot;'
   }[char]));
 }
 
@@ -120,6 +120,16 @@ async function initializeSession() {
   }
 }
 
+async function captureCountdown(seconds = 5) {
+  for (let remaining = seconds; remaining > 0; remaining -= 1) {
+    analysisState.textContent = `📸 Get into position — capturing in ${remaining}…`;
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+  }
+
+  analysisState.textContent = '📸 Capturing now…';
+  await new Promise((resolve) => setTimeout(resolve, 250));
+}
+
 async function analyzeCurrentLook() {
   if (!activePublisher) {
     analysisState.textContent = 'Camera is not ready yet.';
@@ -134,9 +144,11 @@ async function analyzeCurrentLook() {
   visualizationFigure.classList.add('hidden');
   visualizationState.classList.add('hidden');
   latestAnalysis = null;
-  analysisState.textContent = 'Capturing your live look…';
+  analysisState.textContent = 'Get ready for your photo…';
 
   try {
+    await captureCountdown(5);
+
     const imageData = activePublisher.getImgData();
     latestImageData = imageData.startsWith('data:') ? imageData : `data:image/png;base64,${imageData}`;
     const occasion = document.querySelector('#occasion').value;
