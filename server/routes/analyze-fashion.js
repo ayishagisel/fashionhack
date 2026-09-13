@@ -56,26 +56,23 @@ router.post('/visualize-fashion', async (req, res) => {
     if (!image) return res.status(400).json({ error: 'A camera image is required.' });
     if (!process.env.GEMINI_API_KEY) return res.status(500).json({ error: 'GEMINI_API_KEY is not configured on the server.' });
 
+    const mimeMatch = String(image).match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,/);
+    const inputMimeType = mimeMatch?.[1] || 'image/png';
     const rawImage = String(image).replace(/^data:image\/[a-zA-Z0-9.+-]+;base64,/, '');
     const prompt = `Create a photorealistic fashion try-on visualization using the provided photo as the reference. Preserve the same person, face, skin tone, hair or headwear, glasses, pose, camera angle and background. Do not alter physical features. Change ONLY visible clothing and accessories needed to demonstrate the styling recommendations. Do not invent unseen parts of the body or outfit outside the original crop. Keep the result believable, wearable, and realistic rather than editorial fantasy.\n\nOccasion: ${occasion}\nStyle goal: ${goal || 'Not specified'}\nConstraint: ${constraint || 'None'}\nKeep: ${analysis.keep || ''}\nChange: ${analysis.change || ''}\nQuick win: ${analysis.quickWin || analysis.quick_win || ''}\n\nProduce a realistic visual preview of the recommended look.`;
 
-    const response = await fetch('https://generativelanguage.googleapis.com/v1/models/gemini-3.1-flash-image:generateContent', {
+    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/interactions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'x-goog-api-key': process.env.GEMINI_API_KEY
       },
       body: JSON.stringify({
-        contents: [{
-          role: 'user',
-          parts: [
-            { text: prompt },
-            { inlineData: { mimeType: 'image/png', data: rawImage } }
-          ]
-        }],
-        generationConfig: {
-          responseModalities: ['IMAGE']
-        }
+        model: 'gemini-3.1-flash-image',
+        input: [
+          { type: 'image', mime_type: inputMimeType, data: rawImage },
+          { type: 'text', text: prompt }
+        ]
       })
     });
 
@@ -85,12 +82,21 @@ router.post('/visualize-fashion', async (req, res) => {
       return res.status(response.status).json({ error: payload?.error?.message || 'Gemini image request failed.' });
     }
 
-    const parts = payload?.candidates?.[0]?.content?.parts || [];
-    const imagePart = parts.find((part) => part?.inlineData?.data);
-    if (!imagePart) return res.status(502).json({ error: 'Gemini returned no visualization image.' });
+    let imageBlock = null;
+    for (const step of payload?.steps || []) {
+      if (step?.type !== 'model_output') continue;
+      imageBlock = (step?.content || []).find((block) => block?.type === 'image' && block?.data);
+      if (imageBlock) break;
+    }
 
-    const mimeType = imagePart.inlineData.mimeType || 'image/jpeg';
-    return res.json({ image: `data:${mimeType};base64,${imagePart.inlineData.data}` });
+    if (!imageBlock && payload?.output_image?.data) {
+      imageBlock = payload.output_image;
+    }
+
+    if (!imageBlock?.data) return res.status(502).json({ error: 'Gemini returned no visualization image.' });
+
+    const mimeType = imageBlock.mime_type || imageBlock.mimeType || 'image/png';
+    return res.json({ image: `data:${mimeType};base64,${imageBlock.data}` });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Fashion visualization failed.' });
