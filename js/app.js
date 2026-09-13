@@ -238,9 +238,65 @@ async function visualizeSuggestedLook() {
   }
 }
 
+function openStyleReport() {
+  if (!latestImageData || !latestAnalysis) {
+    analysisState.textContent = 'Run a style analysis before opening the report.';
+    return;
+  }
+
+  const reportWindow = window.open('', '_blank');
+  if (!reportWindow) {
+    analysisState.textContent = 'Your browser blocked the report tab. Allow pop-ups for StyleRoom and try again.';
+    return;
+  }
+
+  const occasion = document.querySelector('#occasion').value;
+  const goal = document.querySelector('#goal').value.trim();
+  const constraint = document.querySelector('#constraint').value;
+  const suggestedImage = visualizationFigure.classList.contains('hidden') ? '' : visualizationImage.src;
+  const fields = [
+    ['The Look', latestAnalysis.theLook || latestAnalysis.look],
+    ['Keep', latestAnalysis.keep],
+    ['Change', latestAnalysis.change],
+    ['Quick Win', latestAnalysis.quickWin || latestAnalysis.quick_win],
+    ['Why', latestAnalysis.why]
+  ].filter(([, value]) => value);
+  const analysisHtml = fields.length
+    ? fields.map(([label, value]) => `<section><h2>${escapeHtml(label)}</h2><p>${escapeHtml(value)}</p></section>`).join('')
+    : `<section><p>${escapeHtml(latestAnalysis.analysis || '')}</p></section>`;
+
+  reportWindow.document.open();
+  reportWindow.document.write(`<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>StyleRoom AI — Style Report</title>
+<style>
+  *{box-sizing:border-box} body{margin:0;background:#f4f0ea;color:#17151b;font-family:Inter,Arial,sans-serif}.page{width:min(920px,calc(100% - 28px));margin:28px auto;background:white;border:1px solid #ded8e1;border-radius:22px;padding:36px}.topbar{display:flex;justify-content:space-between;gap:16px;align-items:center;margin-bottom:24px}.print-btn{border:0;border-radius:12px;background:#19171d;color:white;font-weight:800;padding:12px 16px;cursor:pointer}.eyebrow{color:#7350a6;font-size:12px;font-weight:800;letter-spacing:.16em;margin:0 0 8px}.title{font-size:clamp(36px,7vw,64px);line-height:.92;letter-spacing:-.055em;margin:0}.subtitle{color:#625d68;margin:12px 0 0}.rule{height:4px;background:#7350a6;border:0;margin:24px 0}.context{background:#f3eef7;border-left:4px solid #7350a6;border-radius:6px;padding:12px 14px;margin-bottom:20px}.visuals{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-bottom:20px}.visuals.one{grid-template-columns:1fr}.visuals figure{margin:0}.visuals img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;border:1px solid #d8d0dc;border-radius:12px}.visuals figcaption{font-size:12px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;margin-top:7px;color:#5f5864}.analysis{border:1px solid #d8d0dc;border-radius:14px;padding:22px}.analysis section+section{margin-top:18px}.analysis h2{font-size:18px;margin:0 0 6px}.analysis p{font-size:16px;line-height:1.55;margin:0}.footer{border-top:1px solid #d8d0dc;margin-top:22px;padding-top:12px;text-align:center;color:#766f7a;font-size:12px}@media(max-width:650px){.page{padding:22px}.topbar{align-items:flex-start;flex-direction:column}.visuals{grid-template-columns:1fr}}@media print{@page{size:letter;margin:.45in}body{background:white}.page{width:100%;margin:0;border:0;border-radius:0;padding:0}.topbar{display:block}.print-btn{display:none}.title{font-size:38pt}.visuals{gap:14px}.visuals img{height:2.18in;aspect-ratio:auto}.analysis{padding:18px}.analysis h2{font-size:13pt}.analysis p{font-size:10.7pt;line-height:1.46}.footer{font-size:8pt}}
+</style>
+</head>
+<body>
+<main class="page">
+  <div class="topbar"><div><p class="eyebrow">PERSONAL AI STYLE REPORT</p><h1 class="title">StyleRoom AI</h1><p class="subtitle">Powered by Gemini + Vonage Video API</p></div><button class="print-btn" onclick="window.print()">🖨️ Print / Save PDF</button></div>
+  <hr class="rule">
+  <div class="context"><strong>${escapeHtml(occasion)}</strong> • ${escapeHtml(goal || 'No style goal entered')} • ${escapeHtml(constraint)}</div>
+  <div class="visuals ${suggestedImage ? '' : 'one'}">
+    <figure><img src="${latestImageData}" alt="Current look"><figcaption>Current look</figcaption></figure>
+    ${suggestedImage ? `<figure><img src="${suggestedImage}" alt="AI suggested look"><figcaption>AI suggested look</figcaption></figure>` : ''}
+  </div>
+  <div class="analysis">${analysisHtml}</div>
+  <div class="footer">StyleRoom AI • AI-assisted styling guidance • Hackathon MVP</div>
+</main>
+</body>
+</html>`);
+  reportWindow.document.close();
+  reportWindow.opener = null;
+}
+
 analyzeBtn.addEventListener('click', analyzeCurrentLook);
 visualizeBtn.addEventListener('click', visualizeSuggestedLook);
-printReportBtn.addEventListener('click', () => window.print());
+printReportBtn.addEventListener('click', openStyleReport);
 
 if (applicationId && token && sessionId) {
   initializeSession();
