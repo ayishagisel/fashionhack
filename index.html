@@ -9,29 +9,32 @@
 </head>
 <body>
   <main class="app-shell">
-    <section class="hero">
-      <div>
+    <header class="hero">
+      <div class="brand-block">
         <p class="eyebrow">LIVE AI FASHION CONSULTATION</p>
         <h1>StyleRoom AI</h1>
-        <p class="lede">Show your look live, choose the moment you are dressing for, and get a fast Gemini-powered styling read without replacing the human conversation.</p>
+        <p class="brand-tagline">Real Outfits. Real Moments. Smarter Style.</p>
       </div>
-      <div class="status-pill" id="connection-status">Connecting…</div>
-    </section>
+      <p class="lede">Show your look live, choose the moment you are dressing for, and get a fast Gemini-powered styling read without replacing the human conversation.</p>
+      <div class="hero-motto" aria-hidden="true">Your Style<br />Your Power <span>♥</span></div>
+    </header>
 
     <section class="workspace">
-      <div class="video-card">
-        <div class="section-header">
+      <section class="panel video-card">
+        <div class="panel-header">
           <div>
-            <p class="section-kicker">LIVE ROOM</p>
+            <p class="section-kicker">▣ &nbsp; LIVE ROOM</p>
             <h2>Your look</h2>
+            <p class="panel-subtitle">Live from your camera</p>
           </div>
           <div class="room-actions">
-            <button class="secondary" id="publish-video-true">Camera on</button>
-            <button class="secondary" id="publish-video-false">Camera off</button>
+            <div class="status-pill" id="connection-status">Connecting…</div>
+            <button class="secondary compact" id="publish-video-true">Camera on</button>
+            <button class="secondary compact" id="publish-video-false">Camera off</button>
           </div>
         </div>
 
-        <div id="videos">
+        <div id="videos" class="portrait-stage">
           <div id="subscriber"></div>
           <div id="publisher-container">
             <div id="publisher"></div>
@@ -42,67 +45,100 @@
             <span class="countdown-hint">Photo coming up</span>
           </div>
         </div>
-      </div>
 
-      <aside class="stylist-card">
-        <div>
-          <p class="section-kicker">AI STYLIST</p>
-          <h2>What are you dressing for?</h2>
+        <button class="primary" id="analyze-look">📹 &nbsp; Analyze My Look</button>
+        <p class="capture-tip">Get ready — you'll see a 5 second countdown.</p>
+        <div class="analysis-state" id="analysis-state">Waiting for a live look.</div>
+      </section>
+
+      <section class="panel looks-card">
+        <div class="panel-header looks-header">
+          <div>
+            <p class="section-kicker">✦ &nbsp; AI GENERATED LOOKS</p>
+            <h2>Your style previews</h2>
+            <p class="panel-subtitle">Based on your outfit and goals</p>
+          </div>
         </div>
 
-        <label for="occasion">Occasion</label>
-        <select id="occasion">
-          <option value="Fashion Week networking">Fashion Week networking</option>
-          <option value="Job interview">Job interview</option>
-          <option value="Date night">Date night</option>
-          <option value="Wedding guest">Wedding guest</option>
-          <option value="Livestream or on-camera appearance">Livestream / on-camera</option>
-          <option value="Night out">Night out</option>
-          <option value="Creative professional event">Creative professional event</option>
-          <option value="Custom">Custom</option>
-        </select>
-
-        <label for="goal">Style goal</label>
-        <input id="goal" type="text" placeholder="e.g. polished, creative, not overdressed" />
-
-        <label for="constraint">Constraint</label>
-        <select id="constraint">
-          <option value="Use what I already own">Use what I already own</option>
-          <option value="Keep changes minimal">Keep changes minimal</option>
-          <option value="Make it more statement-making">Make it more statement-making</option>
-          <option value="Make it more professional">Make it more professional</option>
-        </select>
-
-        <button class="primary" id="analyze-look">✨ Analyze My Look</button>
-        <p class="microcopy">StyleRoom comments on clothing and styling only — never body type, age, ethnicity, gender, or attractiveness.</p>
-
-        <div class="analysis-state" id="analysis-state">Waiting for a live look.</div>
-        <div id="report-context" class="report-context hidden"></div>
+        <div id="looks-empty" class="looks-empty">
+          <span>✨</span>
+          <strong>Your looks will appear here</strong>
+          <p>Run a style analysis to capture your current outfit, then generate an AI suggested look.</p>
+        </div>
 
         <div id="report-visuals" class="report-visuals hidden">
           <figure class="report-figure">
+            <figcaption>Current Look</figcaption>
             <img id="report-snapshot" class="report-snapshot" alt="Captured look used for this style analysis" />
-            <figcaption>Current look</figcaption>
           </figure>
           <figure id="visualization-figure" class="report-figure hidden">
+            <figcaption>AI Suggested Look</figcaption>
             <img id="visualization-image" class="visualization-image" alt="AI visualization of the suggested style changes" />
-            <figcaption>AI suggested look</figcaption>
           </figure>
         </div>
+      </section>
 
+      <aside class="panel stylist-card">
+        <div class="panel-header">
+          <div>
+            <p class="section-kicker">♟ &nbsp; YOUR STYLE ANALYSIS</p>
+            <h2>What are you dressing for?</h2>
+          </div>
+        </div>
+
+        <div class="style-inputs">
+          <div class="field-card">
+            <label for="occasion">Occasion</label>
+            <select id="occasion">
+              <option value="Fashion Week networking">Fashion Week networking</option>
+              <option value="Job interview">Job interview</option>
+              <option value="Date night">Date night</option>
+              <option value="Wedding guest">Wedding guest</option>
+              <option value="Livestream or on-camera appearance">Livestream / on-camera</option>
+              <option value="Night out">Night out</option>
+              <option value="Creative professional event">Creative professional event</option>
+              <option value="Custom">Custom</option>
+            </select>
+          </div>
+
+          <div class="field-card">
+            <label for="goal">Style goal</label>
+            <input id="goal" type="text" placeholder="Polished, creative, not overdressed" />
+          </div>
+
+          <div class="field-card">
+            <label for="constraint">Constraint</label>
+            <select id="constraint">
+              <option value="Use what I already own">Use what I already own</option>
+              <option value="Keep changes minimal">Keep changes minimal</option>
+              <option value="Make it more statement-making">Make it more statement-making</option>
+              <option value="Make it more professional">Make it more professional</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="report-context" class="report-context hidden"></div>
         <div id="analysis-result" class="analysis-result hidden"></div>
         <div id="visualization-state" class="visualization-state hidden"></div>
+
         <div id="report-actions" class="report-actions hidden">
-          <button class="secondary report-button visualize-button" id="visualize-look">✨ Visualize Suggested Look</button>
-          <button class="secondary report-button" id="print-report">📄 Open Style Report</button>
+          <button class="secondary report-button visualize-button" id="visualize-look">✨ Generate New Look</button>
+          <button class="secondary report-button" id="print-report">📄 Open Style Report <span>opens in a new tab</span></button>
         </div>
+
+        <div class="styling-tip">
+          <span>💡</span>
+          <p><strong>Tip:</strong> Step back and capture your full outfit for the best results.</p>
+        </div>
+
+        <p class="microcopy">StyleRoom comments on clothing and styling only — never body type, age, ethnicity, gender, or attractiveness.</p>
       </aside>
     </section>
 
-    <section class="footer-note">
+    <footer class="footer-note">
+      <div><strong>StyleRoom AI</strong><span>Dress Smarter. Go Further.</span></div>
       <span>Powered by Gemini + Vonage Video API</span>
-      <span>Hackathon MVP</span>
-    </section>
+    </footer>
   </main>
 
   <script src="js/config.js"></script>
