@@ -74,13 +74,7 @@ router.post('/visualize-fashion', async (req, res) => {
           ]
         }],
         generationConfig: {
-          responseModalities: ['Image'],
-          responseFormat: {
-            image: {
-              aspectRatio: 'ASPECT_RATIO_FOUR_BY_THREE',
-              imageSize: 'IMAGE_SIZE_ONE_K'
-            }
-          }
+          responseModalities: ['IMAGE']
         }
       })
     });
