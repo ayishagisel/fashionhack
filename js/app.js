@@ -25,6 +25,8 @@ const printReportBtn = document.querySelector('#print-report');
 const publishVideoTrueBtn = document.querySelector('#publish-video-true');
 const publishVideoFalseBtn = document.querySelector('#publish-video-false');
 const videosEl = document.querySelector('#videos');
+const captureCountdownEl = document.querySelector('#capture-countdown');
+const countdownNumberEl = document.querySelector('#countdown-number');
 
 function setStatus(text) { statusEl.textContent = text; }
 
@@ -121,13 +123,19 @@ async function initializeSession() {
 }
 
 async function captureCountdown(seconds = 5) {
-  for (let remaining = seconds; remaining > 0; remaining -= 1) {
-    analysisState.textContent = `📸 Get into position — capturing in ${remaining}…`;
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+  captureCountdownEl.classList.remove('hidden');
+  try {
+    for (let remaining = seconds; remaining > 0; remaining -= 1) {
+      countdownNumberEl.textContent = remaining;
+      analysisState.textContent = `📸 Get into position — capturing in ${remaining}…`;
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    }
+    countdownNumberEl.textContent = '📸';
+    analysisState.textContent = '📸 Capturing now…';
+    await new Promise((resolve) => setTimeout(resolve, 300));
+  } finally {
+    captureCountdownEl.classList.add('hidden');
   }
-
-  analysisState.textContent = '📸 Capturing now…';
-  await new Promise((resolve) => setTimeout(resolve, 250));
 }
 
 async function analyzeCurrentLook() {
