@@ -27,6 +27,7 @@ const publishVideoFalseBtn = document.querySelector('#publish-video-false');
 const videosEl = document.querySelector('#videos');
 const captureCountdownEl = document.querySelector('#capture-countdown');
 const countdownNumberEl = document.querySelector('#countdown-number');
+const looksEmpty = document.querySelector('#looks-empty');
 
 function setStatus(text) { statusEl.textContent = text; }
 
@@ -103,17 +104,19 @@ async function initializeSession() {
     });
     await activeSession.connect.promise(token);
     await activeSession.publish.promise(activePublisher);
-    setStatus('● Live room connected');
+    setStatus('● Camera On');
 
     publishVideoTrueBtn.addEventListener('click', async () => {
       await activePublisher.publishVideo.promise(true);
       publishVideoTrueBtn.style.display = 'none';
       publishVideoFalseBtn.style.display = 'block';
+      setStatus('● Camera On');
     });
     publishVideoFalseBtn.addEventListener('click', async () => {
       await activePublisher.publishVideo.promise(false);
       publishVideoFalseBtn.style.display = 'none';
       publishVideoTrueBtn.style.display = 'block';
+      setStatus('Camera Off');
     });
   } catch (error) {
     console.error(error);
@@ -151,6 +154,7 @@ async function analyzeCurrentLook() {
   reportVisuals.classList.add('hidden');
   visualizationFigure.classList.add('hidden');
   visualizationState.classList.add('hidden');
+  looksEmpty?.classList.remove('hidden');
   latestAnalysis = null;
   analysisState.textContent = 'Get ready for your photo…';
 
@@ -167,6 +171,7 @@ async function analyzeCurrentLook() {
     reportContext.textContent = `${occasion} • ${goal || 'No style goal entered'} • ${constraint}`;
     reportContext.classList.remove('hidden');
     reportVisuals.classList.remove('hidden');
+    looksEmpty?.classList.add('hidden');
 
     analysisState.textContent = 'Gemini is styling your look…';
     const endpoint = SAMPLE_SERVER_BASE_URL.replace(/\/$/, '') + GEMINI_ANALYZE_PATH;
@@ -229,6 +234,7 @@ async function visualizeSuggestedLook() {
     visualizationImage.src = data.image;
     visualizationFigure.classList.remove('hidden');
     reportVisuals.classList.remove('hidden');
+    looksEmpty?.classList.add('hidden');
     visualizationState.textContent = 'Suggested look visualization ready.';
   } catch (error) {
     console.error(error);
@@ -273,7 +279,7 @@ function openStyleReport() {
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>StyleRoom AI — Style Report</title>
 <style>
-  *{box-sizing:border-box} body{margin:0;background:#f4f0ea;color:#17151b;font-family:Inter,Arial,sans-serif}.page{width:min(920px,calc(100% - 28px));margin:28px auto;background:white;border:1px solid #ded8e1;border-radius:22px;padding:36px}.topbar{display:flex;justify-content:space-between;gap:16px;align-items:center;margin-bottom:24px}.print-btn{border:0;border-radius:12px;background:#19171d;color:white;font-weight:800;padding:12px 16px;cursor:pointer}.eyebrow{color:#7350a6;font-size:12px;font-weight:800;letter-spacing:.16em;margin:0 0 8px}.title{font-size:clamp(36px,7vw,64px);line-height:.92;letter-spacing:-.055em;margin:0}.subtitle{color:#625d68;margin:12px 0 0}.rule{height:4px;background:#7350a6;border:0;margin:24px 0}.context{background:#f3eef7;border-left:4px solid #7350a6;border-radius:6px;padding:12px 14px;margin-bottom:20px}.visuals{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-bottom:20px}.visuals.one{grid-template-columns:1fr}.visuals figure{margin:0}.visuals img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;border:1px solid #d8d0dc;border-radius:12px}.visuals figcaption{font-size:12px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;margin-top:7px;color:#5f5864}.analysis{border:1px solid #d8d0dc;border-radius:14px;padding:22px}.analysis section+section{margin-top:18px}.analysis h2{font-size:18px;margin:0 0 6px}.analysis p{font-size:16px;line-height:1.55;margin:0}.footer{border-top:1px solid #d8d0dc;margin-top:22px;padding-top:12px;text-align:center;color:#766f7a;font-size:12px}@media(max-width:650px){.page{padding:22px}.topbar{align-items:flex-start;flex-direction:column}.visuals{grid-template-columns:1fr}}@media print{@page{size:letter;margin:.45in}body{background:white}.page{width:100%;margin:0;border:0;border-radius:0;padding:0}.topbar{display:block}.print-btn{display:none}.title{font-size:38pt}.visuals{gap:14px}.visuals img{height:2.18in;aspect-ratio:auto}.analysis{padding:18px}.analysis h2{font-size:13pt}.analysis p{font-size:10.7pt;line-height:1.46}.footer{font-size:8pt}}
+  *{box-sizing:border-box}body{margin:0;background:#f7f3ee;color:#17151b;font-family:Inter,Arial,sans-serif}.page{width:min(980px,calc(100% - 28px));margin:28px auto;background:white;border:1px solid #ded8e1;border-radius:22px;padding:36px}.topbar{display:flex;justify-content:space-between;gap:16px;align-items:center;margin-bottom:24px}.print-btn{border:0;border-radius:12px;background:#6536b6;color:white;font-weight:800;padding:12px 16px;cursor:pointer}.eyebrow{color:#7350a6;font-size:12px;font-weight:800;letter-spacing:.16em;margin:0 0 8px}.title{font-size:clamp(36px,7vw,64px);line-height:.92;letter-spacing:-.055em;margin:0}.subtitle{color:#625d68;margin:12px 0 0}.rule{height:4px;background:#7350a6;border:0;margin:24px 0}.context{background:#f3eef7;border-left:4px solid #7350a6;border-radius:6px;padding:12px 14px;margin-bottom:20px}.report-grid{display:grid;grid-template-columns:minmax(240px,.78fr) minmax(0,1.22fr);gap:22px;align-items:start}.visuals{display:flex;flex-direction:column;gap:16px}.visuals figure{margin:0}.visuals img{display:block;width:100%;aspect-ratio:3/4;object-fit:cover;border:1px solid #d8d0dc;border-radius:12px}.visuals figcaption{font-size:12px;font-weight:800;letter-spacing:.04em;margin:0 0 7px;color:#5f5864}.analysis{border:1px solid #d8d0dc;border-radius:14px;padding:22px}.analysis section+section{margin-top:18px}.analysis h2{font-size:18px;margin:0 0 6px;color:#5f3594}.analysis p{font-size:16px;line-height:1.55;margin:0}.footer{border-top:1px solid #d8d0dc;margin-top:22px;padding-top:12px;text-align:center;color:#766f7a;font-size:12px}@media(max-width:720px){.page{padding:22px}.topbar{align-items:flex-start;flex-direction:column}.report-grid{grid-template-columns:1fr}.visuals{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:500px){.visuals{grid-template-columns:1fr}}@media print{@page{size:letter;margin:.45in}body{background:white}.page{width:100%;margin:0;border:0;border-radius:0;padding:0}.topbar{display:block}.print-btn{display:none}.title{font-size:38pt}.report-grid{grid-template-columns:1fr}.visuals{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.visuals img{height:2.65in;aspect-ratio:auto}.analysis{padding:18px}.analysis h2{font-size:13pt}.analysis p{font-size:10.7pt;line-height:1.46}.footer{font-size:8pt}}
 </style>
 </head>
 <body>
@@ -281,11 +287,13 @@ function openStyleReport() {
   <div class="topbar"><div><p class="eyebrow">PERSONAL AI STYLE REPORT</p><h1 class="title">StyleRoom AI</h1><p class="subtitle">Powered by Gemini + Vonage Video API</p></div><button class="print-btn" onclick="window.print()">🖨️ Print / Save PDF</button></div>
   <hr class="rule">
   <div class="context"><strong>${escapeHtml(occasion)}</strong> • ${escapeHtml(goal || 'No style goal entered')} • ${escapeHtml(constraint)}</div>
-  <div class="visuals ${suggestedImage ? '' : 'one'}">
-    <figure><img src="${latestImageData}" alt="Current look"><figcaption>Current look</figcaption></figure>
-    ${suggestedImage ? `<figure><img src="${suggestedImage}" alt="AI suggested look"><figcaption>AI suggested look</figcaption></figure>` : ''}
+  <div class="report-grid">
+    <div class="visuals">
+      <figure><figcaption>Current Look</figcaption><img src="${latestImageData}" alt="Current look"></figure>
+      ${suggestedImage ? `<figure><figcaption>AI Suggested Look</figcaption><img src="${suggestedImage}" alt="AI suggested look"></figure>` : ''}
+    </div>
+    <div class="analysis">${analysisHtml}</div>
   </div>
-  <div class="analysis">${analysisHtml}</div>
   <div class="footer">StyleRoom AI • AI-assisted styling guidance • Hackathon MVP</div>
 </main>
 </body>
