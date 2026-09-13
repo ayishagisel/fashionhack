@@ -21,6 +21,10 @@ h2 { margin: 0; font-size: 1.35rem; }
 #publisher { width: 100%; height: 100%; }
 #videos.has-subscriber #subscriber { display: block; }
 #videos.has-subscriber #publisher-container { inset: auto 14px 14px auto; width: min(34%, 300px); height: auto; aspect-ratio: 4 / 3; border: 2px solid white; border-radius: 14px; box-shadow: 0 10px 30px rgba(0,0,0,.25); }
+.capture-countdown { position: absolute; inset: 0; z-index: 50; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: white; background: rgba(16,12,20,.48); pointer-events: none; text-shadow: 0 3px 18px rgba(0,0,0,.75); }
+.capture-countdown strong { display: block; font-size: clamp(9rem, 24vw, 18rem); line-height: .8; font-weight: 900; letter-spacing: -.08em; }
+.countdown-label { font-size: clamp(1.25rem, 3vw, 2.25rem); font-weight: 900; letter-spacing: .12em; margin-bottom: 20px; }
+.countdown-hint { margin-top: 24px; font-size: clamp(1rem, 2vw, 1.5rem); font-weight: 800; }
 .secondary, .primary { border: 0; cursor: pointer; font-weight: 800; border-radius: 12px; }
 .secondary { padding: 9px 12px; background: #eee9f1; color: #332c39; }
 #publish-video-true { display: none; }
@@ -55,7 +59,6 @@ select:focus, input:focus { border-color: #7952ad; box-shadow: 0 0 0 3px rgba(12
   html, body { width: 8.5in; min-height: 11in; background: #fff !important; color: #17151b; }
   body { margin: 0 !important; padding: 0 !important; font-family: Inter, Arial, sans-serif; }
 
-  /* Print only the StyleRoom document. This also removes extension/custom-widget overlays. */
   body > *:not(.app-shell) { display: none !important; visibility: hidden !important; }
   body > .app-shell { display: block !important; visibility: visible !important; }
   .app-shell iframe, .app-shell [style*="position: fixed"], .app-shell [style*="position:fixed"] { display: none !important; }
@@ -65,7 +68,7 @@ select:focus, input:focus { border-color: #7952ad; box-shadow: 0 0 0 3px rgba(12
   .hero::after { content: "Personal AI Style Report • Powered by Gemini + Vonage Video API"; display: block; margin-top: 7px; color: #5d5662; font-size: 9pt; letter-spacing: .02em; }
   .hero h1 { font-size: 38pt; line-height: .95; letter-spacing: -.05em; margin: 0; color: #17151b; }
 
-  .eyebrow, .lede, .status-pill, .video-card, .stylist-card > label, .stylist-card > select, .stylist-card > input, #analyze-look, .microcopy, .analysis-state, .visualization-state, .report-actions, .footer-note { display: none !important; }
+  .eyebrow, .lede, .status-pill, .video-card, .stylist-card > label, .stylist-card > select, .stylist-card > input, #analyze-look, .microcopy, .analysis-state, .visualization-state, .report-actions, .footer-note, .capture-countdown { display: none !important; }
   .workspace { display: block; }
   .stylist-card { border: 0; box-shadow: none; padding: 0; display: block; background: #fff; }
   .stylist-card > div:first-child { margin-bottom: 10px; }
